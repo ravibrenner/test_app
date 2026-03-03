@@ -1,6 +1,7 @@
 library(shiny)
 library(bslib)
-library(tidyverse)
+library(ggplot2)
+library(dplyr)
 
 # Define the UI using a sidebar layout.
 ui <- page_sidebar(
