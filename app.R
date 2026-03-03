@@ -1,5 +1,6 @@
 library(shiny)
 library(bslib)
+library(tidyverse)
 
 # Define the UI using a sidebar layout.
 ui <- page_sidebar(
@@ -19,18 +20,29 @@ ui <- page_sidebar(
 # Define server logic to generate a histogram.
 server <- function(input, output) {
   filtered_data <- reactive({
-    df <- mtcars
-    if (!is.null(input$cyl_filter) && input$cyl_filter != "All") {
-      df <- df[df$cyl == as.numeric(input$cyl_filter), , drop = FALSE]
+    cyl <- input$cyl_filter
+    if (is.null(cyl) || cyl == "All") {
+      mtcars
+    } else {
+      mtcars |>
+        filter(cyl == as.numeric(cyl))
     }
-    df
   })
 
   output$distPlot <- renderPlot({
-    x <- filtered_data()$mpg
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    hist(x, breaks = bins, col = "#75AADB", border = "white",
-         main = "Histogram of MPG", xlab = "Miles Per Gallon")
+    filtered_data() |>
+      ggplot(aes(x = mpg)) +
+      geom_histogram(
+        bins = input$bins,
+        fill = "#75AADB",
+        color = "white"
+      ) +
+      labs(
+        title = "Histogram of MPG",
+        x = "Miles Per Gallon",
+        y = "Count"
+      ) +
+      theme_minimal()
   })
 }
 
